@@ -1,11 +1,23 @@
 import { SerialPort, ReadlineParser } from 'serialport';
 import { WebSocketServer } from "ws";
+import { config } from "dotenv";
+config();
 
 const parser = new ReadlineParser({
     delimiter: '\r\n'
 });
 
-const server = new WebSocketServer({port: 1234});
+const serialPort = new SerialPort({
+    path: process.env.DEVICE,
+    baudRate: 9600
+});
+
+serialPort.pipe(parser);
+
+const server = new WebSocketServer({ port: 1234 });
+let lastState = 0;
+const commands = ["state", "production"];
+
 /**
  * @param {object} data 
  */
@@ -19,33 +31,22 @@ const broadcast = async (data) => {
  * @param {number} 
  */
 const decode = (value) => {
-    const data = value >> 1
-    let command;
-    if (value & 1) {
-        console.log("Recevied slider state of", data);
-        command = "slider";
-    } else {
-        console.log("Recevied instruction to go to", data);
-        command = "go";
+    const data = value >> 1;
+    const type = value & 1;
+
+    return [commands[type], data];
+}
+
+serialPort.on("data", (data) => {
+    const value = data[0];
+    const [command, data] = decode(value);
+
+    if (command == "state") {
+        lastState = data;
+    }
+
+    if (command == "production") {
+        data = data * (0.5 * (lastState & 4) + 0.5 * (lastState & 2));
     }
     broadcast({command, data});
-}
-
-const main = async () => {
-    const arduino = new SerialPort({
-    path: '/dev/ttyACM0', 
-        baudRate: 9600,
-        dataBits: 8,
-        parity: 'none',
-        stopBits: 1,
-        flowControl: false
-    });
-
-    arduino.pipe(parser);
-    arduino.on("data", (data) => {
-        const value = data[0];
-        decode(value);
-    });
-}
-
-main();
+});
