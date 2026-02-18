@@ -1,24 +1,19 @@
 <!doctype html>
 <html>
   <head>
-    <title>Communicating from Node.js to an Arduino</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <title>Super page de test</title>
   </head>
   <body>
-    <h1>Communicating from Node.js to an Arduino</h1>
 
-    <button id="lightOn">Turn Light On</button>
-    <button id="lightOff">Turn Light Off</button>
+    Navigating to <p id="value">{value}</p>
 
     <script>
-      var socket = io({port: 2000});
+      const ws = new WebSocket("ws://localhost:1234");
 
-      document.getElementById("lightOn").onclick = function () {
-        socket.emit("lights", { status: "1" });
-      };
-
-      document.getElementById("lightOff").onclick = function () {
-        socket.emit("lights", { status: "0" });
+      ws.onmessage = (e) => {
+        let {command, data} = JSON.parse(e.data);
+        console.log(command, data)
+        if (command === "go") document.getElementById("value").innerHTML = data;
       };
     </script>
   </body>

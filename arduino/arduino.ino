@@ -7,20 +7,8 @@ void setup()
 }
 
 void loop() {
-  /*if (Serial.available() > 0) {
-    String receivedString = "";
-    while (Serial.available() > 0) {
-      receivedString += char(Serial.read ());
-    }
-    Serial.println(receivedString);
-    if(receivedString == "1")
-      digitalWrite(lightPin,HIGH);  
-    else
-      digitalWrite(lightPin,LOW);
-  }*/
-
-  for (int i = 0; i < 100; i ++) {
-    Serial.write(0);
+  for (int i = 0; i < 8; i ++) {
+    Serial.write(i);
     delay(1000);
   }
 }
