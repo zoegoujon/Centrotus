@@ -7,42 +7,60 @@ const PORT = process.env.PORT || 3000;
 
 const root = __dirname;
 
+// Servir les fichiers statiques
 app.use(express.static(root));
 
-async function renderWithFragment(res, fragmentRelPath) {
+// Routes pour les pages
+app.get(['/', '/accueil'], async (req, res) => {
   try {
-    const indexPath = path.join(root, 'index.html');
-    const fragmentPath = path.join(root, fragmentRelPath);
-    const [indexHtml, fragmentHtml] = await Promise.all([
-      fs.readFile(indexPath, 'utf8'),
-      fs.readFile(fragmentPath, 'utf8').catch(() => '<p>Page introuvable.</p>')
-    ]);
-
-    const rendered = indexHtml.replace('<div id="app"></div>', ` <div id="app">${fragmentHtml}</div>`);
+    const htmlPath = path.join(root, 'src/pages/accueil.html');
+    const html = await fs.readFile(htmlPath, 'utf8');
     res.set('Content-Type', 'text/html');
-    res.send(rendered);
+    res.send(html);
   } catch (err) {
-    res.status(500).send('Erreur serveur');
+    console.error('Erreur:', err);
+    res.status(500).send('Erreur serveur: ' + err.message);
   }
-}
+});
 
-app.get(['/', '/accueil'], (req, res) => renderWithFragment(res, 'src/pages/accueil.html'));
-app.get('/erosion', (req, res) => renderWithFragment(res, 'src/pages/erosion.html'));
-app.get('/modules', (req, res) => renderWithFragment(res, 'src/pages/modules.html'));
-app.get('/transition', (req, res) => renderWithFragment(res, 'src/pages/transition.html'));
-
-// Fallback: serve index.html for other unknown routes (SPA-friendly)
-app.get('*', async (req, res) => {
-  const indexPath = path.join(root, 'index.html');
+app.get('/erosion', async (req, res) => {
   try {
-    const indexHtml = await fs.readFile(indexPath, 'utf8');
+    const htmlPath = path.join(root, 'src/pages/erosion.html');
+    const html = await fs.readFile(htmlPath, 'utf8');
     res.set('Content-Type', 'text/html');
-    res.send(indexHtml);
+    res.send(html);
   } catch (err) {
-    res.status(500).send('Erreur serveur');
+    console.error('Erreur:', err);
+    res.status(500).send('Erreur serveur: ' + err.message);
+  }
+});
+
+app.get('/modules', async (req, res) => {
+  try {
+    const htmlPath = path.join(root, 'src/pages/modules.html');
+    const html = await fs.readFile(htmlPath, 'utf8');
+    res.set('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err) {
+    console.error('Erreur:', err);
+    res.status(500).send('Erreur serveur: ' + err.message);
+  }
+});
+
+app.get('/transition', async (req, res) => {
+  try {
+    const htmlPath = path.join(root, 'src/pages/transition.html');
+    const html = await fs.readFile(htmlPath, 'utf8');
+    res.set('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err) {
+    console.error('Erreur:', err);
+    res.status(500).send('Erreur serveur: ' + err.message);
   }
 });
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+
+app.export = app;
