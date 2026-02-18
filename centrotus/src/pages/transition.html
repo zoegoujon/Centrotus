@@ -4,12 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transition - Centrotus</title>
+    <link rel="stylesheet" href="/src/styles/transition.css"/>
 </head>
 <body>
     <div id="app">
-        <h1>Transition</h1>
-        <p>Page de transition</p>
-        <a href="/accueil"><button>Retour à l'accueil</button></a>
+        <div class="text">
+            <p>Notre dispositif à pour objectif de ralentir l'érosion dans des enviromments ou les populations n'ont pas les moyens ou l'opportunité de déménager</p>
+            <p>Ajouter les différents modules de Centrotus et testez différentes configurations pour voir les effets de chaque.</p>
+        </div>
+        <ul class="menu-boutons">
+            <li><a href="/modules?flotteurs"><button id="flotteurs">Ajouter les flotteurs </button></a></li>
+            <li><a href="/modules?algues"><button id="algues">Ajouter les algues en PVDF</button></a></li>
+            <li><a href="/modules?oursin"><button id="oursin">Ajouter les poids oursins</button></a></li>
+        </ul>
     </div>
 </body>
 </html>
