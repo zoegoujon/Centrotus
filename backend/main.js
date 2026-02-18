@@ -50,3 +50,12 @@ serialPort.on("data", ([value]) => {
 
     broadcast({command, data});
 });
+
+server.on("connection", ws => {
+    ws.on("message", (d) => {
+        const data = JSON.parse(d);
+        if (data.command == "reset") {
+            serialPort.write("0");
+        }
+    });
+});
