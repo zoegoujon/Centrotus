@@ -1,14 +1,20 @@
-int lightPin = LED_BUILTIN;
+int sliderPin = A0;
+
+int sliderValue = 0;
+int oldSliderValue = 0;
 
 void setup() 
-{ 
-  pinMode(lightPin, OUTPUT);
+{
   Serial.begin(9600);
 }
 
 void loop() {
-  for (int i = 0; i < 8; i ++) {
-    Serial.write(i);
-    delay(1000);
+  sliderValue = analogRead(sliderPin) >> 3;
+
+  if (oldSliderValue != sliderValue) {
+    Serial.write(sliderValue << 1 | 1);
+    oldSliderValue = sliderValue;
   }
+
+  delay(100);
 }
