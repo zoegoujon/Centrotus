@@ -4,5 +4,8 @@
     "dotenv": "^17.3.1",
     "serialport": "13.0.0",
     "ws": "^8.19.0"
+  },
+  "scripts": {
+    "start": "node main.js"
   }
 }

@@ -37,8 +37,8 @@ const decode = (value) => {
     return [commands[type], data];
 }
 
-serialPort.on("data", (data) => {
-    const value = data[0];
+serialPort.on("data", (v) => {
+    const value = v[0];
     const [command, data] = decode(value);
 
     if (command == "state") {
