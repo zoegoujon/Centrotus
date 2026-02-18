@@ -1,8 +1,5 @@
-var http = require('http');
-var fs = require('fs');
-var index = fs.readFileSync( 'index.html');
-
-const { SerialPort, ReadlineParser } = require('serialport')
+import { SerialPort, ReadlineParser } from 'serialport';
+import { WebSocketServer } from "ws";
 
 const parser = new ReadlineParser({
     delimiter: '\r\n'
@@ -19,25 +16,18 @@ var port = new SerialPort({
 
 port.pipe(parser);
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function main() {
-
-while (1) {
-    await sleep(1000);
-    port.write('1');
-    await sleep(1000);
-    port.write('0');
-}
-}
-
-// main();
+const server = new WebSocketServer({port: 1234});
+/**
+ * 
+ * @param {object} data 
+ */
+const broadcast = async (data) => {
+    server.clients.forEach(c => {
+        c.send(JSON.stringify(data));
+    });
+};
 
 port.on("data", (data) => {
-   /** @type {Buffer} */ 
-   const d = data;
-    console.log(d)
-   // console.log(d.byteLength);
+    console.log("Recevied instruction to go to page", data[0]);
+    broadcast({"command": "go", "data": data[0]});
 });
