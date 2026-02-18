@@ -13,8 +13,8 @@
       ws.onmessage = (e) => {
         let {command, data} = JSON.parse(e.data);
         console.log(command, data);
-        if (command === "go") document.getElementById("value").innerHTML = data;
-        if (command === "slider") document.getElementById("slider").innerHTML = data;
+        if (command === "state") document.getElementById("value").innerHTML = data;
+        if (command === "production") document.getElementById("slider").innerHTML = data;
       };
     </script>
   </body>
