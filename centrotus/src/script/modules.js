@@ -65,7 +65,7 @@ ws.onmessage = (e) => {
     if (command === "state") {
         let used = [];
         for (let i = 0; i < modules.length; i ++) {
-            if (data & Math.pow(2, i)) used.append(modules[i].key);
+            if (data & Math.pow(2, i)) used.push(modules[i].key);
         }
         update(m => used.includes(m.key));
     }
