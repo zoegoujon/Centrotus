@@ -1,4 +1,5 @@
 #include <Servo.h>
+#include <Adafruit_NeoPixel.h>
 
 static const uint8_t dataTypeWidth = 1;
 
@@ -17,7 +18,13 @@ uint8_t state = 0;
 uint8_t sliderValue = 0;
 
 Servo motor;
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(11, 3, NEO_GRB + NEO_KHZ800); 
+Adafruit_NeoPixel pixels2 = Adafruit_NeoPixel(11, 10, NEO_GRB + NEO_KHZ800); 
 
+int32_t brownish = pixels.Color(51, 25, 0);
+int32_t yellow = pixels.Color(255, 128, 0);
+int32_t off = pixels.Color(0, 0, 0);
+int32_t blue = pixels2.Color(0, 0, 128);
 int16_t motorAngle = 0;
 bool motorDirection = true;
 
@@ -31,6 +38,10 @@ void setup() {
   pinMode(sliderPin, INPUT);
 
   motor.attach(9);
+	pixels.begin();
+  pixels.setBrightness(50);
+	pixels2.begin();
+  pixels2.setBrightness(50);
 }
 
 inline uint8_t encode(uint8_t data, enum dataType type) {
@@ -80,6 +91,15 @@ void loop() {
       };
     }
   }
+
+  for(int i=0; i < 11; i++){
+    pixels.setPixelColor(i, off);
+  }
+  pixels.show(); //On allume la led avec la couleur
+  for(int i=0; i < 11; i++){
+    pixels2.setPixelColor(i, blue);
+  }
+  pixels2.show(); //On allume la led avec la couleur
 
   delay(200);
 }
