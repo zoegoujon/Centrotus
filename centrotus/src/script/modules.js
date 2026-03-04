@@ -25,7 +25,7 @@ function update(shouldShow) {
             const isVisible = shouldShow(module);
             const oldVisibility = element.style.visibility;
             element.style.visibility = isVisible ? "visible" : "hidden";
-            if (oldVisibility != element.style.visibility && element.style.visibility != "hidden") latestChange = module;
+            if (oldVisibility != element.style.visibility) latestChange = module;
         }
     });
     console.log(latestChange);
