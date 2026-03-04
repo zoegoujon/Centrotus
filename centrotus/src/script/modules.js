@@ -1,9 +1,9 @@
 import text from "/src/text/modules.json" with { type: "json" };
 
 const modules = [
-    { key: "flotteurs", label: "Flotteurs", description: text.flotteurs },
+    { key: "oursins", label: "Poids oursins", description: text.oursins },
     { key: "algues", label: "Algues en PVDF", description: text.algues },
-    { key: "oursins", label: "Poids oursins", description: text.oursins }
+    { key: "flotteurs", label: "Flotteurs", description: text.flotteurs }
 ];
 
 function displayLastModuleDescription(latestChange) {
