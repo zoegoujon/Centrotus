@@ -1,16 +1,38 @@
+import text from "/src/text/modules.json" with { type: "json" };
+
 const modules = [
-    { key: "flotteurs", label: "Flotteurs" },
-    { key: "algues", label: "Algues en PVDF" },
-    { key: "oursin", label: "Poids oursins" }
+    { key: "flotteurs", label: "Flotteurs", description: text.flotteurs },
+    { key: "algues", label: "Algues en PVDF", description: text.algues },
+    { key: "oursins", label: "Poids oursins", description: text.oursins }
 ];
 
+function displayLastModuleDescription(visibleModules) {
+    const descriptionElement = document.getElementById("module-description");
+    if (!descriptionElement) return;
+    
+    if (visibleModules.length > 0) {
+        const lastModule = visibleModules[visibleModules.length - 1];
+        descriptionElement.textContent = lastModule.description;
+    } else {
+        descriptionElement.textContent = "";
+    }
+}
+
 function update(shouldShow) {
+    const visibleModules = [];
     modules.forEach(module => {
         const element = document.getElementById(module.key);
         if (element) {
-            element.style.visibility = shouldShow(module) ? "visible" : "hidden";
+            const isVisible = shouldShow(module);
+            element.style.visibility = isVisible ? "visible" : "hidden";
+            if (isVisible) {
+                visibleModules.push(module);
+            }
         }
     });
+
+    // Afficher la description du dernier module
+    displayLastModuleDescription(visibleModules);
 
     // Afficher "Aucun module" si aucun n'est sélectionné
     const hasAnyModule = modules.some(shouldShow);
@@ -58,7 +80,6 @@ function initializeModules() {
 initializeModules();
 
 const ws = new WebSocket("ws://localhost:1234");
-
 
 ws.onmessage = (e) => {
     let {command, data} = JSON.parse(e.data);
