@@ -6,33 +6,32 @@ const modules = [
     { key: "oursins", label: "Poids oursins", description: text.oursins }
 ];
 
-function displayLastModuleDescription(visibleModules) {
+function displayLastModuleDescription(latestChange) {
     const descriptionElement = document.getElementById("module-description");
     if (!descriptionElement) return;
     
-    if (visibleModules.length > 0) {
-        const lastModule = visibleModules[visibleModules.length - 1];
-        descriptionElement.textContent = lastModule.description;
+    if (latestChange) {
+        descriptionElement.textContent = latestChange.description;
     } else {
         descriptionElement.textContent = "";
     }
 }
 
 function update(shouldShow) {
-    const visibleModules = [];
+    let latestChange;
     modules.forEach(module => {
         const element = document.getElementById(module.key);
         if (element) {
             const isVisible = shouldShow(module);
+            const oldVisibility = element.style.visibility;
             element.style.visibility = isVisible ? "visible" : "hidden";
-            if (isVisible) {
-                visibleModules.push(module);
-            }
+            if (oldVisibility != element.style.visibility && element.style.visibility != "hidden") latestChange = module;
         }
     });
+    console.log(latestChange);
 
     // Afficher la description du dernier module
-    displayLastModuleDescription(visibleModules);
+    displayLastModuleDescription(latestChange);
 
     // Afficher "Aucun module" si aucun n'est sélectionné
     const hasAnyModule = modules.some(shouldShow);
