@@ -6,6 +6,24 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap">
     <title>Transition - Centrotus</title>
     <link rel="stylesheet" href="/src/styles/transition.css"/>
+    <script>
+        const ws = new WebSocket("ws://localhost:1234");
+
+        ws.onmessage = (e) => {
+            let {command, data} = JSON.parse(e.data);
+            if (command === "state") {
+                if (data === 1) {
+                    window.location.replace("/modules?oursins");
+                }
+                if (data === 2) {
+                    window.location.replace("/modules?algues");
+                }
+                if (data === 4) {
+                    window.location.replace("/modules?flotteurs");
+                }
+            }
+        };
+    </script>
 </head>
 <body>
     <div id="app">
