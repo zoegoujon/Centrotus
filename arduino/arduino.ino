@@ -1,3 +1,5 @@
+#include <Servo.h>
+
 static const uint8_t dataTypeWidth = 1;
 
 enum dataType {
@@ -14,6 +16,11 @@ uint8_t state = 0;
 
 uint8_t sliderValue = 0;
 
+Servo motor;
+
+int16_t motorAngle = 0;
+bool motorDirection = true;
+
 void setup() {
   Serial.begin(9600);
 
@@ -22,6 +29,8 @@ void setup() {
   }
 
   pinMode(sliderPin, INPUT);
+
+  motor.attach(9);
 }
 
 inline uint8_t encode(uint8_t data, enum dataType type) {
@@ -46,13 +55,29 @@ void loop() {
 
   if (stateChanged) {
     writeData(state, STATE);
-  }
+   }
 
   uint8_t oldSliderValue = sliderValue;
   sliderValue = analogRead(sliderPin) >> 3;
 
   if (oldSliderValue != sliderValue) {
     writeData(sliderValue, SLIDER_VALUE);
+  }
+
+  uint8_t speed = sliderValue >> 3;
+  motor.write(motorAngle);
+  if (motorDirection) {
+    motorAngle += speed;
+    if (motorAngle >= 180) {
+      motorDirection = false;
+      motorAngle = 180;
+    };
+  } else {
+    motorAngle -= speed;
+    if (motorAngle <= 0) {
+      motorDirection = true;
+      motorAngle = 0;
+    };
   }
 
   delay(200);
