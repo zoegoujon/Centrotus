@@ -13,13 +13,13 @@
 
 ### Configuration
 
-Configurer le port **série** sur lequel est branché l'arduino.
+Configurate the **serial** port on which is connected the arduino board.
 
-Pour faire celà, créez un fichier `.env` avec le même contenu que le fichier `.env.example`. Remplacer par votre valeur d'où est branché l'arduino.
+To do so, create a `.env` file with the same content as the file `.env.example`. Replacer with your values where the arduino board is connected.
 
-### Lancement
+### Launch
 
-`npm run start`
+`npm start`
 
 ## Communication protocol
 
@@ -38,6 +38,15 @@ The types are as follow
 `00001110` : State with all the parameters of the system
 
 `11111111` : Production with a value of 127
+
+### Server to Board
+
+3 bits integer
+
+XY
+
+X: animation\
+Y: buttons
 
 ### Server to Front
 
