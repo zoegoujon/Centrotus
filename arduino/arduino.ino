@@ -63,21 +63,22 @@ void loop() {
   if (oldSliderValue != sliderValue) {
     writeData(sliderValue, SLIDER_VALUE);
   }
-
-  uint8_t speed = sliderValue >> 3;
-  motor.write(motorAngle);
-  if (motorDirection) {
-    motorAngle += speed;
-    if (motorAngle >= 180) {
-      motorDirection = false;
-      motorAngle = 180;
-    };
-  } else {
-    motorAngle -= speed;
-    if (motorAngle <= 0) {
-      motorDirection = true;
-      motorAngle = 0;
-    };
+  if (state >= 2) {
+    uint8_t speed = sliderValue >> 3;
+    motor.write(motorAngle);
+    if (motorDirection) {
+      motorAngle += speed;
+      if (motorAngle >= 180) {
+        motorDirection = false;
+        motorAngle = 180;
+      };
+    } else {
+      motorAngle -= speed;
+      if (motorAngle <= 0) {
+        motorDirection = true;
+        motorAngle = 0;
+      };
+    }
   }
 
   delay(200);
