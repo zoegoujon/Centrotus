@@ -57,5 +57,11 @@ server.on("connection", ws => {
         if (data.command == "reset") {
             serialPort.write("0");
         }
+        if (data.command == "erosion") {
+            serialPort.write("2");
+        }
+        if (data.command == "modules") {
+            serialPort.write("3");
+        }
     });
 });
