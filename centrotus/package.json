@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "main.js",
   "dependencies": {
+    "@fontsource-variable/montserrat": "^5.2.8",
     "express": "^5.2.1"
   },
   "scripts": {
