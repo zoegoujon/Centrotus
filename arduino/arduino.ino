@@ -10,6 +10,7 @@ enum dataType {
 
 static const uint8_t numberOfButtons = 3;
 static const uint8_t buttonPins[numberOfButtons] = {2, 4, 7};
+static const uint8_t ledPins[numberOfButtons] = {3, 5, 6};
 
 static const uint8_t sliderPin = A0;
 
@@ -19,12 +20,11 @@ uint8_t sliderValue = 0;
 
 Servo motor;
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(11, 3, NEO_GRB + NEO_KHZ800); 
-Adafruit_NeoPixel pixels2 = Adafruit_NeoPixel(11, 10, NEO_GRB + NEO_KHZ800); 
 
 int32_t brownish = pixels.Color(51, 25, 0);
 int32_t yellow = pixels.Color(255, 128, 0);
 int32_t off = pixels.Color(0, 0, 0);
-int32_t blue = pixels2.Color(0, 0, 128);
+int32_t blue = pixels.Color(0, 0, 128);
 int16_t motorAngle = 0;
 bool motorDirection = true;
 
@@ -33,6 +33,7 @@ void setup() {
 
   for (uint8_t i = 0; i < numberOfButtons; ++i) {
     pinMode(buttonPins[i], INPUT_PULLUP);
+    pinMode(ledPins[i], OUTPUT);
   }
 
   pinMode(sliderPin, INPUT);
@@ -40,8 +41,6 @@ void setup() {
   motor.attach(9);
 	pixels.begin();
   pixels.setBrightness(50);
-	pixels2.begin();
-  pixels2.setBrightness(50);
 }
 
 inline uint8_t encode(uint8_t data, enum dataType type) {
@@ -61,6 +60,12 @@ void loop() {
     }
 
     state ^= 1 << i;
+
+    if ((state >> i) & 1) {
+      digitalWrite(ledPins[i], HIGH);
+    } else {
+      digitalWrite(ledPins[i], LOW);
+    }
     stateChanged = true;
   }
 
@@ -91,15 +96,6 @@ void loop() {
       };
     }
   }
-
-  for(int i=0; i < 11; i++){
-    pixels.setPixelColor(i, off);
-  }
-  pixels.show(); //On allume la led avec la couleur
-  for(int i=0; i < 11; i++){
-    pixels2.setPixelColor(i, blue);
-  }
-  pixels2.show(); //On allume la led avec la couleur
 
   delay(200);
 }
