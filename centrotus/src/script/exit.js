@@ -9,9 +9,13 @@ function hidePopup() {
         const ws = new WebSocket("ws://localhost:1234");
 
         ws.onmessage = (e) => {
-            console.log("Message reçu du serveur WebSocket, masquage du popup");
-            clearTimeout(autoTimeoutId);
-            popup.style.visibility = "hidden";
+            let {command} = JSON.parse(e.data);
+            if (command === "state") {
+                console.log("Message reçu du serveur WebSocket, masquage du popup");
+                clearTimeout(autoTimeoutId);
+                showPopup();
+                popup.style.visibility = "hidden";
+            }  
         };
     }
 }
