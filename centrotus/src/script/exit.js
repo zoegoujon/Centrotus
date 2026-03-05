@@ -3,10 +3,11 @@ let timeoutId = null;
 let autoTimeoutId = null;
 const popup = document.getElementById("popup");
 
+const ws = new WebSocket("ws://localhost:1234");
+
 function hidePopup() {
     if (popup.style.visibility === "visible") {
         console.log("hidepopup");
-        const ws = new WebSocket("ws://localhost:1234");
 
         ws.onmessage = (e) => {
             let {command} = JSON.parse(e.data);
@@ -26,7 +27,9 @@ function goToHomePage() {
         body.addEventListener('click', () => {
             console.log("Redirection vers la page d'accueil par click");
             clearTimeout(autoTimeoutId);
+            ws.send(JSON.stringify({command: "reset"}));
             window.location.href = "/accueil";
+            
         });
     }
 }
@@ -36,6 +39,7 @@ function automaticExit() {
         console.log("automaticExit");
         autoTimeoutId = setTimeout(() => {
             console.log("Redirection vers la page d'accueil par expiration du temps");
+            ws.send(JSON.stringify({command: "reset"}));
             window.location.href = "/accueil";
         }, 10000);
     }

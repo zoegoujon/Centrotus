@@ -1,3 +1,9 @@
+const ws = new WebSocket("ws://localhost:1234");
+
+ws.addEventListener("open", () => {
+    ws.send(JSON.stringify({command: "erosion"}));
+});
+
 fetch("/src/text/erosion.json")
     .then(response => response.json())
     .then(erosionText => {
