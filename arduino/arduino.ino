@@ -19,7 +19,7 @@ uint8_t state = 0;
 uint8_t sliderValue = 0;
 
 Servo motor;
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(11, 3, NEO_GRB + NEO_KHZ800); 
+Adafruit_NeoPixel pixels(11, 10, NEO_GRB + NEO_KHZ800); 
 
 int32_t brownish = pixels.Color(51, 25, 0);
 int32_t yellow = pixels.Color(255, 128, 0);
@@ -32,8 +32,10 @@ void setup() {
   Serial.begin(9600);
 
   for (uint8_t i = 0; i < numberOfButtons; ++i) {
+    // NE PAS OUBLIER CES LIGNES PAR PITIE
     pinMode(buttonPins[i], INPUT_PULLUP);
     pinMode(ledPins[i], OUTPUT);
+    if (otherLedPins[i] != -1) pinMode(otherLedPins[i], OUTPUT);
   }
 
   pinMode(sliderPin, INPUT);
@@ -61,10 +63,9 @@ void loop() {
 
     state ^= 1 << i;
 
-    if ((state >> i) & 1) {
-      digitalWrite(ledPins[i], HIGH);
-    } else {
-      digitalWrite(ledPins[i], LOW);
+    digitalWrite(ledPins[i], (state >> i) & 1);
+    if (otherLedPins[i] != -1) {
+      digitalWrite(otherLedPins[i], (state >> i) & 1);
     }
     stateChanged = true;
   }
