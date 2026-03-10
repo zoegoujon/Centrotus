@@ -11,8 +11,10 @@ enum dataType {
 // Buttons
 constexpr uint8_t numberOfButtons = 3;
 constexpr uint8_t buttonPins[numberOfButtons] = {2, 4, 7};
+constexpr unsigned long buttonReadInterval = 1;
 
 uint8_t state = 0;
+unsigned long buttonLastRead = 0;
 
 // LEDs
 constexpr uint8_t ledPins[numberOfButtons] = {3, 5, 6};
@@ -21,15 +23,19 @@ constexpr uint8_t townLedPins[numberOfButtons] = {noLedPin, 8, 11};
 
 // Slider
 constexpr uint8_t sliderPin = A0;
+constexpr unsigned long sliderReadInterval = 1;
 
 uint8_t sliderValue = 0;
+unsigned long sliderLastRead = 0;
 
 // Motor
 constexpr uint8_t motorPin = 9;
 Servo motor;
+constexpr unsigned long motorUpdateInterval = 50;
 
 int16_t motorAngle = 0;
 bool motorDirection = true;
+unsigned long motorLastUpdate = 0;
 
 // LED Strip
 constexpr int8_t ledsCount = 11;
@@ -69,36 +75,48 @@ inline void writeData(uint8_t data, enum dataType type) {
 }
 
 void loop() {
-  bool stateChanged = false;
+  const unsigned long currentMillis = millis();
 
-  for (uint8_t i = 0; i < numberOfButtons; ++i) {
-    if (digitalRead(buttonPins[i]) == HIGH) {
-      continue;
+  if (currentMillis - buttonLastRead >= buttonReadInterval) {
+    buttonLastRead = currentMillis;
+
+    bool stateChanged = false;
+
+    for (uint8_t i = 0; i < numberOfButtons; ++i) {
+      if (digitalRead(buttonPins[i]) == HIGH) {
+        continue;
+      }
+
+      state ^= 1 << i;
+
+      digitalWrite(ledPins[i], (state >> i) & 1);
+
+      if (townLedPins[i] != noLedPin) {
+        digitalWrite(townLedPins[i], (state >> i) & 1);
+      }
+
+      stateChanged = true;
     }
 
-    state ^= 1 << i;
-
-    digitalWrite(ledPins[i], (state >> i) & 1);
-
-    if (townLedPins[i] != noLedPin) {
-      digitalWrite(townLedPins[i], (state >> i) & 1);
+    if (stateChanged) {
+      writeData(state, STATE);
     }
-
-    stateChanged = true;
   }
 
-  if (stateChanged) {
-    writeData(state, STATE);
+  if (currentMillis - sliderLastRead >= sliderReadInterval) {
+    sliderLastRead = currentMillis;
+
+    uint8_t oldSliderValue = sliderValue;
+    sliderValue = analogRead(sliderPin) >> 3;
+
+    if (oldSliderValue != sliderValue) {
+      writeData(sliderValue, SLIDER_VALUE);
+    }
   }
 
-  uint8_t oldSliderValue = sliderValue;
-  sliderValue = analogRead(sliderPin) >> 3;
+  if (currentMillis - motorLastUpdate >= motorUpdateInterval && state >= 2) {
+    motorLastUpdate = currentMillis;
 
-  if (oldSliderValue != sliderValue) {
-    writeData(sliderValue, SLIDER_VALUE);
-  }
-
-  if (state >= 2) {
     uint8_t speed = sliderValue >> 3;
 
     if (motorDirection) {
@@ -119,6 +137,4 @@ void loop() {
 
     motor.write(motorAngle);
   }
-
-  delay(200);
 }
