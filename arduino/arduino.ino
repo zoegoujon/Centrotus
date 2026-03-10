@@ -21,13 +21,17 @@ uint8_t state = 0;
 
 uint8_t sliderValue = 0;
 
+constexpr uint8_t motorPin = 9;
 Servo motor;
-Adafruit_NeoPixel pixels(11, 10, NEO_GRB + NEO_KHZ800); 
 
-int32_t brownish = pixels.Color(51, 25, 0);
-int32_t yellow = pixels.Color(255, 128, 0);
-int32_t off = pixels.Color(0, 0, 0);
-int32_t blue = pixels.Color(0, 0, 128);
+constexpr int8_t ledsCount = 11;
+constexpr int8_t stripPin = 10;
+Adafruit_NeoPixel pixels(ledsCount, stripPin, NEO_GRB + NEO_KHZ800);
+const int32_t brownish = pixels.Color(51, 25, 0);
+const int32_t yellow = pixels.Color(255, 128, 0);
+const int32_t off = pixels.Color(0, 0, 0);
+const int32_t blue = pixels.Color(0, 0, 128);
+
 int16_t motorAngle = 0;
 bool motorDirection = true;
 
@@ -46,8 +50,9 @@ void setup() {
 
   pinMode(sliderPin, INPUT);
 
-  motor.attach(9);
-	pixels.begin();
+  motor.attach(motorPin);
+
+  pixels.begin();
   pixels.setBrightness(50);
 }
 
