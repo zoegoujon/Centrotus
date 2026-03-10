@@ -8,9 +8,65 @@ enum dataType {
   SLIDER_VALUE = 1,
 };
 
+class Button {
+public:
+  static constexpr uint8_t defaultState = 1;
+  static constexpr uint8_t defaultHistory = 0xFF;
+  static constexpr uint8_t defaultHighCount = 8;
+
+private:
+  static constexpr uint8_t highThreshold = 5;
+  static constexpr uint8_t lowThreshold = 3;
+
+  const uint8_t buttonPin;
+  uint8_t currentState = defaultState;
+  uint8_t oldState = defaultState;
+  uint8_t history = defaultHistory;
+  uint8_t highCount = defaultHighCount;
+
+public:
+  explicit Button(uint8_t pin) : buttonPin(pin) {}
+
+  uint8_t readWithDebounce();
+
+  uint8_t pin() const { return buttonPin; }
+
+  uint8_t state() const { return currentState; }
+
+  bool isFallingEdge() const {
+    return oldState != currentState && currentState == LOW;
+  }
+};
+
+uint8_t Button::readWithDebounce() {
+  const uint8_t newButtonState = digitalRead(buttonPin);
+  const uint8_t oldestButtonState = history >> 7;
+  history = history << 1 | newButtonState;
+
+  if (oldestButtonState == newButtonState) {
+    return currentState;
+  }
+
+  if (newButtonState) {
+    ++highCount;
+  } else {
+    --highCount;
+  }
+
+  oldState = currentState;
+
+  if (oldState == HIGH) {
+    currentState = highCount >= lowThreshold;
+  } else {
+    currentState = highCount > highThreshold;
+  }
+
+  return currentState;
+}
+
 // Buttons
 constexpr uint8_t numberOfButtons = 3;
-constexpr uint8_t buttonPins[numberOfButtons] = {2, 4, 7};
+Button buttons[numberOfButtons] = {Button(2), Button(4), Button(7)};
 constexpr unsigned long buttonReadInterval = 1;
 
 uint8_t state = 0;
@@ -50,7 +106,7 @@ void setup() {
   Serial.begin(9600);
 
   for (uint8_t i = 0; i < numberOfButtons; ++i) {
-    pinMode(buttonPins[i], INPUT_PULLUP);
+    pinMode(buttons[i].pin(), INPUT_PULLUP);
     pinMode(ledPins[i], OUTPUT);
 
     if (townLedPins[i] != noLedPin) {
@@ -83,19 +139,20 @@ void loop() {
     bool stateChanged = false;
 
     for (uint8_t i = 0; i < numberOfButtons; ++i) {
-      if (digitalRead(buttonPins[i]) == HIGH) {
+      buttons[i].readWithDebounce();
+
+      if (!buttons[i].isFallingEdge()) {
         continue;
       }
 
       state ^= 1 << i;
+      stateChanged = true;
 
       digitalWrite(ledPins[i], (state >> i) & 1);
 
       if (townLedPins[i] != noLedPin) {
         digitalWrite(townLedPins[i], (state >> i) & 1);
       }
-
-      stateChanged = true;
     }
 
     if (stateChanged) {
