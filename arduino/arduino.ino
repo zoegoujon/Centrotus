@@ -1,21 +1,21 @@
 #include <Servo.h>
 #include <Adafruit_NeoPixel.h>
 
-static const uint8_t dataTypeWidth = 1;
+constexpr uint8_t dataTypeWidth = 1;
 
 enum dataType {
   STATE = 0,
   SLIDER_VALUE = 1,
 };
 
-static const uint8_t numberOfButtons = 3;
-static const uint8_t buttonPins[numberOfButtons] = {2, 4, 7};
-static const uint8_t ledPins[numberOfButtons] = {3, 5, 6};
+constexpr uint8_t numberOfButtons = 3;
+constexpr uint8_t buttonPins[numberOfButtons] = {2, 4, 7};
+constexpr uint8_t ledPins[numberOfButtons] = {3, 5, 6};
 
-static const uint8_t noLedPin = 0xFF;
-static const uint8_t townLedPins[numberOfButtons] = {noLedPin, 8, 11};
+constexpr uint8_t noLedPin = 0xFF;
+constexpr uint8_t townLedPins[numberOfButtons] = {noLedPin, 8, 11};
 
-static const uint8_t sliderPin = A0;
+constexpr uint8_t sliderPin = A0;
 
 uint8_t state = 0;
 
