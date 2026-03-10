@@ -12,6 +12,9 @@ static const uint8_t numberOfButtons = 3;
 static const uint8_t buttonPins[numberOfButtons] = {2, 4, 7};
 static const uint8_t ledPins[numberOfButtons] = {3, 5, 6};
 
+static const uint8_t noLedPin = 0xFF;
+static const uint8_t townLedPins[numberOfButtons] = {noLedPin, 8, 11};
+
 static const uint8_t sliderPin = A0;
 
 uint8_t state = 0;
@@ -35,7 +38,10 @@ void setup() {
     // NE PAS OUBLIER CES LIGNES PAR PITIE
     pinMode(buttonPins[i], INPUT_PULLUP);
     pinMode(ledPins[i], OUTPUT);
-    if (otherLedPins[i] != -1) pinMode(otherLedPins[i], OUTPUT);
+
+    if (townLedPins[i] != noLedPin) {
+      pinMode(townLedPins[i], OUTPUT);
+    }
   }
 
   pinMode(sliderPin, INPUT);
@@ -64,9 +70,11 @@ void loop() {
     state ^= 1 << i;
 
     digitalWrite(ledPins[i], (state >> i) & 1);
-    if (otherLedPins[i] != -1) {
-      digitalWrite(otherLedPins[i], (state >> i) & 1);
+
+    if (townLedPins[i] != noLedPin) {
+      digitalWrite(townLedPins[i], (state >> i) & 1);
     }
+
     stateChanged = true;
   }
 
