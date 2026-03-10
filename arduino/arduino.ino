@@ -1,5 +1,5 @@
-#include <Servo.h>
 #include <Adafruit_NeoPixel.h>
+#include <Servo.h>
 
 constexpr uint8_t dataTypeWidth = 1;
 
@@ -8,22 +8,30 @@ enum dataType {
   SLIDER_VALUE = 1,
 };
 
+// Buttons
 constexpr uint8_t numberOfButtons = 3;
 constexpr uint8_t buttonPins[numberOfButtons] = {2, 4, 7};
-constexpr uint8_t ledPins[numberOfButtons] = {3, 5, 6};
-
-constexpr uint8_t noLedPin = 0xFF;
-constexpr uint8_t townLedPins[numberOfButtons] = {noLedPin, 8, 11};
-
-constexpr uint8_t sliderPin = A0;
 
 uint8_t state = 0;
 
+// LEDs
+constexpr uint8_t ledPins[numberOfButtons] = {3, 5, 6};
+constexpr uint8_t noLedPin = 0xFF;
+constexpr uint8_t townLedPins[numberOfButtons] = {noLedPin, 8, 11};
+
+// Slider
+constexpr uint8_t sliderPin = A0;
+
 uint8_t sliderValue = 0;
 
+// Motor
 constexpr uint8_t motorPin = 9;
 Servo motor;
 
+int16_t motorAngle = 0;
+bool motorDirection = true;
+
+// LED Strip
 constexpr int8_t ledsCount = 11;
 constexpr int8_t stripPin = 10;
 Adafruit_NeoPixel pixels(ledsCount, stripPin, NEO_GRB + NEO_KHZ800);
@@ -32,14 +40,10 @@ const int32_t yellow = pixels.Color(255, 128, 0);
 const int32_t off = pixels.Color(0, 0, 0);
 const int32_t blue = pixels.Color(0, 0, 128);
 
-int16_t motorAngle = 0;
-bool motorDirection = true;
-
 void setup() {
   Serial.begin(9600);
 
   for (uint8_t i = 0; i < numberOfButtons; ++i) {
-    // NE PAS OUBLIER CES LIGNES PAR PITIE
     pinMode(buttonPins[i], INPUT_PULLUP);
     pinMode(ledPins[i], OUTPUT);
 
@@ -85,7 +89,7 @@ void loop() {
 
   if (stateChanged) {
     writeData(state, STATE);
-   }
+  }
 
   uint8_t oldSliderValue = sliderValue;
   sliderValue = analogRead(sliderPin) >> 3;
@@ -93,22 +97,27 @@ void loop() {
   if (oldSliderValue != sliderValue) {
     writeData(sliderValue, SLIDER_VALUE);
   }
+
   if (state >= 2) {
     uint8_t speed = sliderValue >> 3;
-    motor.write(motorAngle);
+
     if (motorDirection) {
       motorAngle += speed;
+
       if (motorAngle >= 180) {
         motorDirection = false;
         motorAngle = 180;
       };
     } else {
       motorAngle -= speed;
+
       if (motorAngle <= 0) {
         motorDirection = true;
         motorAngle = 0;
       };
     }
+
+    motor.write(motorAngle);
   }
 
   delay(200);
