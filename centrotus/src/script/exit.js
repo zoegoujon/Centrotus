@@ -56,6 +56,5 @@ body.addEventListener('click', () => {
     console.log("Redirection vers la page d'accueil par click");
     clearTimeout(autoTimeoutId);
     ws.send(JSON.stringify({command: "reset"}));
-    window.location.href = "/accueil";
-    
+    window.location.href = "/accueil"; 
 });
