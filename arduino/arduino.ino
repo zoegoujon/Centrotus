@@ -36,6 +36,13 @@ public:
   bool isFallingEdge() const {
     return oldState != currentState && currentState == LOW;
   }
+
+  void reset() {
+    currentState = defaultState;
+    oldState = defaultState;
+    history = defaultHistory;
+    highCount = defaultHighCount;
+  }
 };
 
 uint8_t Button::readWithDebounce() {
@@ -64,18 +71,24 @@ uint8_t Button::readWithDebounce() {
   return currentState;
 }
 
-// Buttons
-constexpr uint8_t numberOfButtons = 3;
-Button buttons[numberOfButtons] = {Button(2), Button(4), Button(7)};
-constexpr unsigned long buttonReadInterval = 1;
+// System
+constexpr uint8_t numberOfModules = 3;
+constexpr uint8_t modulesMask = (1 << numberOfModules) - 1;
+constexpr uint8_t interactionMask = 0x08;
+constexpr uint8_t animationMask = 0x10;
 
 uint8_t state = 0;
+
+// Buttons
+Button buttons[numberOfModules] = {Button(2), Button(4), Button(7)};
+constexpr unsigned long buttonReadInterval = 1;
+
 unsigned long buttonLastRead = 0;
 
 // LEDs
-constexpr uint8_t ledPins[numberOfButtons] = {3, 5, 6};
+constexpr uint8_t ledPins[numberOfModules] = {3, 5, 6};
 constexpr uint8_t noLedPin = 0xFF;
-constexpr uint8_t townLedPins[numberOfButtons] = {noLedPin, 8, 11};
+constexpr uint8_t townLedPins[numberOfModules] = {noLedPin, 8, 11};
 
 // Slider
 constexpr uint8_t sliderPin = A0;
@@ -105,7 +118,7 @@ const int32_t blue = pixels.Color(0, 0, 128);
 void setup() {
   Serial.begin(9600);
 
-  for (uint8_t i = 0; i < numberOfButtons; ++i) {
+  for (uint8_t i = 0; i < numberOfModules; ++i) {
     pinMode(buttons[i].pin(), INPUT_PULLUP);
     pinMode(ledPins[i], OUTPUT);
 
@@ -130,15 +143,37 @@ inline void writeData(uint8_t data, enum dataType type) {
   Serial.write(encode(data, type));
 }
 
+void reset(unsigned long currentMillis) {
+  for (uint8_t i = 0; i < numberOfModules; ++i) {
+    buttons[i].reset();
+
+    digitalWrite(ledPins[i], 0);
+
+    if (townLedPins[i] != noLedPin) {
+      digitalWrite(townLedPins[i], 0);
+    }
+  }
+
+  buttonLastRead = currentMillis - buttonReadInterval;
+  sliderLastRead = currentMillis - sliderReadInterval;
+  motorLastUpdate = currentMillis - motorUpdateInterval;
+}
+
 void loop() {
   const unsigned long currentMillis = millis();
 
-  if (currentMillis - buttonLastRead >= buttonReadInterval) {
+  if (Serial.available() > 0) {
+    state = Serial.read() << numberOfModules;
+    reset(currentMillis);
+  }
+
+  if (currentMillis - buttonLastRead >= buttonReadInterval &&
+      state & interactionMask) {
     buttonLastRead = currentMillis;
 
     bool stateChanged = false;
 
-    for (uint8_t i = 0; i < numberOfButtons; ++i) {
+    for (uint8_t i = 0; i < numberOfModules; ++i) {
       buttons[i].readWithDebounce();
 
       if (!buttons[i].isFallingEdge()) {
@@ -156,11 +191,12 @@ void loop() {
     }
 
     if (stateChanged) {
-      writeData(state, STATE);
+      writeData(state & modulesMask, STATE);
     }
   }
 
-  if (currentMillis - sliderLastRead >= sliderReadInterval) {
+  if (currentMillis - sliderLastRead >= sliderReadInterval &&
+      state & interactionMask) {
     sliderLastRead = currentMillis;
 
     uint8_t oldSliderValue = sliderValue;
@@ -171,7 +207,8 @@ void loop() {
     }
   }
 
-  if (currentMillis - motorLastUpdate >= motorUpdateInterval && state >= 2) {
+  if (currentMillis - motorLastUpdate >= motorUpdateInterval &&
+      (state & modulesMask) >= 2) {
     motorLastUpdate = currentMillis;
 
     uint8_t speed = sliderValue >> 3;
