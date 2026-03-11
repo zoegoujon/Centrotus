@@ -29,7 +29,7 @@ h1{
     bottom: 20px;
     left: 20px;
     width: 350px;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.5);
     padding: 15px;
     border-radius: 5px;
     font-size: 16px;
@@ -44,7 +44,7 @@ h1{
     position: absolute;
     bottom: 20px;
     left: 40%;
-    gap: 0px;
+    gap: 15px;
     margin-top: 50px;
 }
 
@@ -69,7 +69,7 @@ li{
     position: absolute;
     top: 20px;
     right: 20px;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.5);
     padding: 10px;
     border-radius: 5px;
     color: white;
