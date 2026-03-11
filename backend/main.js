@@ -48,20 +48,28 @@ serialPort.on("data", ([value]) => {
         data = data * (0.5 * (lastState & 4) + 0.5 * (lastState & 2));
     }
 
-    broadcast({command, data});
+    broadcast({ command, data });
 });
+
+const interaction = 1;
+const animation = 2;
+
+const instructions = {
+    reset: 0,
+    erosion: animation,
+    modules: interaction | animation,
+}
 
 server.on("connection", ws => {
     ws.on("message", (d) => {
         const data = JSON.parse(d);
-        if (data.command == "reset") {
-            serialPort.write("0");
+
+        const instruction = instructions[data.command];
+
+        if (!instruction) {
+            return;
         }
-        if (data.command == "erosion") {
-            serialPort.write("2");
-        }
-        if (data.command == "modules") {
-            serialPort.write("3");
-        }
+
+        serialPort.write(instruction);
     });
 });
