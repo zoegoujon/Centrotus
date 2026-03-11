@@ -215,6 +215,11 @@ void loop() {
 
       strip.fill(cliff, 0);
       strip.show();
+
+      stripLastUpdate = currentMillis;
+
+      segmentIndex = 0;
+      ledIndex = 0;
     }
   }
 
