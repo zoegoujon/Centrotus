@@ -78,6 +78,7 @@ constexpr uint8_t interactionMask = 0x08;
 constexpr uint8_t animationMask = 0x10;
 
 uint8_t state = 0;
+uint8_t numberOfActiveModules = 0;
 
 // Buttons
 Button buttons[numberOfModules] = {Button(2), Button(4), Button(7)};
@@ -107,13 +108,19 @@ bool motorDirection = true;
 unsigned long motorLastUpdate = 0;
 
 // LED Strip
-constexpr int8_t ledsCount = 11;
-constexpr int8_t stripPin = 10;
-Adafruit_NeoPixel pixels(ledsCount, stripPin, NEO_GRB + NEO_KHZ800);
-const int32_t brownish = pixels.Color(51, 25, 0);
-const int32_t yellow = pixels.Color(255, 128, 0);
-const int32_t off = pixels.Color(0, 0, 0);
-const int32_t blue = pixels.Color(0, 0, 128);
+constexpr uint8_t numberOfLeds = 36;
+constexpr uint8_t stripPin = 10;
+Adafruit_NeoPixel strip(numberOfLeds, stripPin, NEO_GRB + NEO_KHZ800);
+const int32_t cliff = strip.Color(0, 0, 0);
+const int32_t ocean = strip.Color(0, 0, 128);
+constexpr uint8_t numberOfSegments = 5;
+constexpr uint8_t ledsPerSegment[numberOfSegments] = {10, 5, 11, 5, 5};
+constexpr unsigned long stripUpdateIntervalPerModule = 250;
+constexpr unsigned long stripAnimationRestartInterval = 2000;
+
+uint8_t segmentIndex = 0;
+uint8_t ledIndex = 0;
+unsigned long stripLastUpdate = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -131,8 +138,10 @@ void setup() {
 
   motor.attach(motorPin);
 
-  pixels.begin();
-  pixels.setBrightness(50);
+  strip.begin();
+  strip.setBrightness(64);
+  strip.fill(cliff, 0);
+  strip.show();
 }
 
 inline uint8_t encode(uint8_t data, enum dataType type) {
@@ -144,6 +153,9 @@ inline void writeData(uint8_t data, enum dataType type) {
 }
 
 void reset(unsigned long currentMillis) {
+  state &= ~modulesMask;
+  numberOfActiveModules = 0;
+
   for (uint8_t i = 0; i < numberOfModules; ++i) {
     buttons[i].reset();
 
@@ -154,9 +166,13 @@ void reset(unsigned long currentMillis) {
     }
   }
 
+  strip.fill(cliff, 0);
+  strip.show();
+
   buttonLastRead = currentMillis - buttonReadInterval;
   sliderLastRead = currentMillis - sliderReadInterval;
   motorLastUpdate = currentMillis - motorUpdateInterval;
+  stripLastUpdate = currentMillis;
 }
 
 void loop() {
@@ -183,15 +199,22 @@ void loop() {
       state ^= 1 << i;
       stateChanged = true;
 
-      digitalWrite(ledPins[i], (state >> i) & 1);
+      const uint8_t moduleState = state >> i & 1;
+
+      numberOfActiveModules += moduleState == HIGH ? 1 : -1;
+
+      digitalWrite(ledPins[i], moduleState);
 
       if (townLedPins[i] != noLedPin) {
-        digitalWrite(townLedPins[i], (state >> i) & 1);
+        digitalWrite(townLedPins[i], moduleState);
       }
     }
 
     if (stateChanged) {
       writeData(state & modulesMask, STATE);
+
+      strip.fill(cliff, 0);
+      strip.show();
     }
   }
 
@@ -230,5 +253,28 @@ void loop() {
     }
 
     motor.write(motorAngle);
+  }
+
+  if (currentMillis - stripLastUpdate >=
+          stripUpdateIntervalPerModule * (1 + numberOfActiveModules) &&
+      state & animationMask && segmentIndex < numberOfSegments) {
+    stripLastUpdate = currentMillis;
+
+    strip.fill(ocean, ledIndex, ledsPerSegment[segmentIndex]);
+    strip.show();
+
+    ledIndex += ledsPerSegment[segmentIndex];
+    ++segmentIndex;
+  }
+
+  if (currentMillis - stripLastUpdate >= stripAnimationRestartInterval &&
+      state & animationMask && segmentIndex == numberOfSegments) {
+    stripLastUpdate = currentMillis;
+
+    strip.fill(cliff, 0);
+    strip.show();
+
+    segmentIndex = 0;
+    ledIndex = 0;
   }
 }
