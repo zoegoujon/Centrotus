@@ -1,15 +1,16 @@
-import { SerialPort, ReadlineParser } from 'serialport';
+import { ReadlineParser, SerialPort } from "serialport";
 import { WebSocketServer } from "ws";
 import { config } from "dotenv";
+
 config();
 
 const parser = new ReadlineParser({
-    delimiter: '\r\n'
+    delimiter: "\r\n",
 });
 
 const serialPort = new SerialPort({
     path: process.env.DEVICE,
-    baudRate: 9600
+    baudRate: 9600,
 });
 
 serialPort.pipe(parser);
@@ -19,23 +20,23 @@ let lastState = 0;
 const commands = ["state", "production"];
 
 /**
- * @param {object} data 
+ * @param {object} data
  */
 const broadcast = async (data) => {
-    server.clients.forEach(c => {
+    server.clients.forEach((c) => {
         c.send(JSON.stringify(data));
     });
 };
 
 /**
- * @param {number} 
+ * @param {number}
  */
 const decode = (value) => {
     const data = value >> 1;
     const type = value & 1;
 
     return [commands[type], data];
-}
+};
 
 serialPort.on("data", ([value]) => {
     let [command, data] = decode(value);
@@ -58,7 +59,7 @@ const instructions = {
     reset: 0,
     erosion: animation,
     modules: interaction | animation,
-}
+};
 
 const instructionBuffer = new Uint8Array(1);
 
