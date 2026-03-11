@@ -58,7 +58,7 @@ function showPopup() {
 
             console.log("Popup affiché, redirection dans 10 secondes...");
         };
-    }, 1000);
+    }, 1000*60);
 };
 
 function exit() {
@@ -66,5 +66,5 @@ function exit() {
     let g = body.addEventListener('click', showPopup)
 };
 
-showPopup();
-exit();
+//showPopup();
+//exit();

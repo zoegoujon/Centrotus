@@ -26,8 +26,8 @@ h1{
 
 #module-description{
     position: absolute;
-    top: 20px;
-    right: 20px;
+    bottom: 20px;
+    left: 20px;
     width: 350px;
     background: rgba(0, 0, 0, 0.7);
     padding: 15px;
@@ -63,4 +63,26 @@ li{
     border-radius: 10px;
     color: white;
     text-align: center;
+}
+
+#compteur{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    width: 16rem;
+    height: 4rem;
+    display: flex;
+    flex-direction: row;
+}
+
+#compteur #unite{
+    position: absolute;
+    top: 8%;
+    right: 10px;
+    font-size: x-large;
 }
