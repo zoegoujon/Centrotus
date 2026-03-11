@@ -152,6 +152,14 @@ inline void writeData(uint8_t data, enum dataType type) {
   Serial.write(encode(data, type));
 }
 
+inline void resetStrip() {
+  strip.fill(cliff, 0);
+  strip.show();
+
+  segmentIndex = 0;
+  ledIndex = 0;
+}
+
 void reset(unsigned long currentMillis) {
   state &= ~modulesMask;
   numberOfActiveModules = 0;
@@ -166,11 +174,11 @@ void reset(unsigned long currentMillis) {
     }
   }
 
-  strip.fill(cliff, 0);
-  strip.show();
+  resetStrip();
 
   buttonLastRead = currentMillis - buttonReadInterval;
   sliderLastRead = currentMillis - sliderReadInterval;
+
   motorLastUpdate = currentMillis - motorUpdateInterval;
   stripLastUpdate = currentMillis;
 }
@@ -213,13 +221,8 @@ void loop() {
     if (stateChanged) {
       writeData(state & modulesMask, STATE);
 
-      strip.fill(cliff, 0);
-      strip.show();
-
+      resetStrip();
       stripLastUpdate = currentMillis;
-
-      segmentIndex = 0;
-      ledIndex = 0;
     }
   }
 
@@ -276,10 +279,6 @@ void loop() {
       state & animationMask && segmentIndex == numberOfSegments) {
     stripLastUpdate = currentMillis;
 
-    strip.fill(cliff, 0);
-    strip.show();
-
-    segmentIndex = 0;
-    ledIndex = 0;
+    resetStrip();
   }
 }
