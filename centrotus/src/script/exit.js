@@ -21,19 +21,6 @@ function hidePopup() {
     }
 }
 
-function goToHomePage() {
-    if (popup.style.visibility === "visible") {
-        console.log("gotohomepage");
-        body.addEventListener('click', () => {
-            console.log("Redirection vers la page d'accueil par click");
-            clearTimeout(autoTimeoutId);
-            ws.send(JSON.stringify({command: "reset"}));
-            window.location.href = "/accueil";
-            
-        });
-    }
-}
-
 function automaticExit() {
     if (popup.style.visibility === "visible") {
         console.log("automaticExit");
@@ -56,19 +43,19 @@ function showPopup() {
     timeoutId = setTimeout(() => {
         if (popup) {
             popup.style.visibility = "visible";
-            goToHomePage();
             automaticExit();
             hidePopup();
 
             console.log("Popup affiché, redirection dans 10 secondes...");
         };
-    }, 1000*60);
+    }, 1000*30);
 };
 
-function exit() {
-    let p = body.addEventListener('keypress', showPopup);
-    let g = body.addEventListener('click', showPopup)
-};
 
-//showPopup();
-//exit();
+body.addEventListener('click', () => {
+    console.log("Redirection vers la page d'accueil par click");
+    clearTimeout(autoTimeoutId);
+    ws.send(JSON.stringify({command: "reset"}));
+    window.location.href = "/accueil";
+    
+});
