@@ -11,7 +11,7 @@ ws.onmessage = (e) => {
     }
 };
 
-ws.addEventListener("open", () => {
+ws.addEventListener("open", (e) => {
     let {command, data} = JSON.parse(e.data);
     if (command === "production" && data!==compteurText.textContent) {
         console.log("Message reçu du serveur WebSocket pour le compteur:", data);
