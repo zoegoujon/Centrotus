@@ -60,7 +60,9 @@ const instructions = {
     modules: interaction | animation,
 }
 
-server.on("connection", ws => {
+const instructionBuffer = new Uint8Array(1);
+
+server.on("connection", (ws) => {
     ws.on("message", (d) => {
         const data = JSON.parse(d);
 
@@ -70,6 +72,7 @@ server.on("connection", ws => {
             return;
         }
 
-        serialPort.write(instruction);
+        instructionBuffer[0] = instruction;
+        serialPort.write(instructionBuffer);
     });
 });
