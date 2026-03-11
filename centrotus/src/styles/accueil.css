@@ -6,6 +6,8 @@ body{
     align-items: center;
     justify-content: center;
     background-image: url('/src/img/accueil2.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
     font-family: "Montserrat";
 }
 
