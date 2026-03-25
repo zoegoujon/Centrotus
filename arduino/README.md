@@ -1,3 +1,7 @@
+# Wiring
+
+![wiring](doc.png)
+
 Pin to Object
 
 | Pin number | Other connections |   Object |
